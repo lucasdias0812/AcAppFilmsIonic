@@ -1,6 +1,7 @@
 import { NavigationExtras, Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { ISerie } from '../model/ISerie';
+import { AlertController, ToastController } from '@ionic/angular';
 
 
 @Component({
@@ -10,7 +11,9 @@ import { ISerie } from '../model/ISerie';
 })
 export class Tab2Page {
 
-  constructor(public router: Router) {}
+  constructor(public router: Router,
+    public alertController: AlertController,
+    public toastController: ToastController) {}
   listaSeries: ISerie[] = [
     {
       nome: 'The Mandalorian (2019)',
@@ -47,4 +50,44 @@ export class Tab2Page {
     const navigationExtras: NavigationExtras = {state:{paramSerie:serie}};
     this.router.navigate(['serie-detalhe'],navigationExtras);
   }
+  async exibirAlertaFavorito(serie: ISerie) {
+    const alert = await this.alertController.create({
+
+      header: 'Meus Favoritos',
+      message: 'Deseja realmente favoritar a serie?',
+      buttons: [
+        {
+          text: 'Não',
+          role: 'cancel',
+          handler: () => {
+            serie.favorito=false;
+          }
+        }, {
+          text: 'Sim, favoritar.',
+          handler: () => {
+            serie.favorito=true;
+            this.apresentarToast(serie);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+  async apresentarToast(serie: ISerie) {
+    const toast = await this.toastController.create({
+      message: 'Serie adicionada aos favoritos...',
+      duration: 2000,
+      color: 'success',
+      buttons: [
+        {
+        text: 'Desfazer',
+        handler: ()=>{
+          serie.favorito=false;
+        }
+      }
+      ]
+    });
+    toast.present();
+  }
+
 }
